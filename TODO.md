@@ -21,3 +21,4 @@
     - Write emails
 - Github
     - Notifications
+- Use gmail for login
