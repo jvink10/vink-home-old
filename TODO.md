@@ -1,0 +1,23 @@
+- Add international clocks
+    - 12 and 24 hour
+    - Can add and remove time zones or cities
+    - Indicate day and night time
+- Add list of websites (personal and professional)
+    - scrollable section
+    - One section for personal, another for professional
+    - Semi-transparent background, one image and title
+    - Small scroll bar and or clickable arrows
+- Header
+    - Links to different portions of the page (clocks, websites, quick links)
+- Links to favourite websites
+- Google docs access
+- Reminders
+    - Language learning
+    - Timed or looping
+    - Able to be added and removed
+- Display emails
+    - Retrieve emails
+    - Sort by inbox
+    - Write emails
+- Github
+    - Notifications
