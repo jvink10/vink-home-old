@@ -7,7 +7,7 @@ import Repository from '../components/Repository';
 
 export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
-  const [commits, setCommits] = useState<Array<{name: string, commits: Array<{author: string, message: string}>}>>([]);
+  const [repositories, setRepositories] = useState<Array<{name: string, status: string, commits: Array<{author: string, message: string}>}>>([]);
 
   useEffect(() => {
     const requestArray = [{ continent: 'Australia', city: 'Brisbane' }, { continent: 'Europe', city: 'Lisbon' }];
@@ -37,8 +37,10 @@ export default function HomePage() {
     requestArray.forEach(request => fetchTime(request));
   }, []);
 
-  const filterCommits = (repo: string, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
-    setCommits((prevCommits) => {
+  const storeRepositories = (repository: string, deploymentStatus: Array<{state: string}>, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
+    setRepositories((prevRepositories) => {
+      const status = deploymentStatus[0].state;
+
       const newCommits: Array<{author: string, message: string}> = [];
       commitData.forEach((commit) => {
         const author = commit.commit.author.name;
@@ -46,32 +48,45 @@ export default function HomePage() {
         newCommits.push({author: author, message: message});
       });
 
-      const updatedCommits = [...prevCommits];
-      updatedCommits.push({name: repo, commits: newCommits});
+      const updatedRepositories = [...prevRepositories];
+      updatedRepositories.push({name: repository, status: status, commits: newCommits});
 
-      return updatedCommits;
+      return updatedRepositories;
     });
   };
 
   useEffect(() => {
-    const fetchCommits = async (request: {owner: string, repo: string}) => {
+    const repositoryArray = [{owner: 'jvink10', repo: 'room-view'}, {owner: 'jvink10', repo: 'your-local-wedding-guide'}, {owner: 'jvink10', repo: 'vink-home'}];
+
+    const fetchRepository = async (request: {owner: string, repo: string}) => {
       try {
         const queryParams = new URLSearchParams(request);
-        const response = await fetch(`api/github/list-commits?${queryParams}`, {
+        const commitResponse = await fetch(`api/github/list-commits?${queryParams}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
+        const commits = await commitResponse.json();
 
-        const commits = await response.json();
-        filterCommits(request.repo, commits);
+        if (commits) {
+          const queryParams = new URLSearchParams(request);
+          const deploymentResponse = await fetch(`api/github/deployment-status?${queryParams}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const deploymentStatus = await deploymentResponse.json();
+
+          storeRepositories(request.repo, deploymentStatus, commits);
+        };
       } catch (error) {
         console.error('Error fetching data: ', error);
       };
     };
 
-    fetchCommits({owner: 'jvink10', repo: 'vink-home'});
+    repositoryArray.forEach(repository => fetchRepository(repository));
   }, []);
 
   return (
@@ -96,8 +111,8 @@ export default function HomePage() {
       </section>
       <section id="gitSection">
         <div className="flex flex-row mx-auto my-16 rounded-2xl w-fit bg-zinc-300">
-          {commits.map((repository, index) => (
-            <Repository key={index} commitData={repository} />
+          {repositories.map((repository, index) => (
+            <Repository key={index} repository={repository} />
           ))}
         </div>
       </section>
