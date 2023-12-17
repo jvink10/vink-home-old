@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 import Clock from '../components/Clock';
@@ -24,10 +24,10 @@ export default function HomePage() {
     });
   };
 
+  const minuteIntervalMounted = useRef(true);
+
   useEffect(() => {
     const requestArray = [{ continent: 'Australia', city: 'Brisbane' }, { continent: 'Europe', city: 'Lisbon' }];
-
-    let minuteInterval: NodeJS.Timeout;
 
     const fetchTime = async (request: {continent: string, city: string}) => {
       try{
@@ -47,21 +47,23 @@ export default function HomePage() {
           return updatedTime;
         });
 
-        const timeoutSeconds = 60 - time.seconds;
-        setTimeout(() => {
-          updateTime();
-          minuteInterval = setInterval(() => {
+        if (minuteIntervalMounted.current) {
+          const timeoutSeconds = 60 - time.seconds;
+          setTimeout(() => {
             updateTime();
-          }, 60000);
-        }, timeoutSeconds * 1000);
+            const minuteInterval = setInterval(() => {
+              updateTime();
+            }, 60000);
+            return () => clearInterval(minuteInterval);
+          }, timeoutSeconds * 1000);
+          minuteIntervalMounted.current = false;
+        };
       } catch (error) {
         console.error('Error fetching data: ', error);
       };
     };
 
     requestArray.forEach(request => fetchTime(request));
-
-    return () => clearInterval(minuteInterval);
   }, []);
 
   const storeRepositories = (repository: string, deploymentStatus: Array<{state: string}>, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
