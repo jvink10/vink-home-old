@@ -9,8 +9,25 @@ export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
   const [repositories, setRepositories] = useState<Array<{name: string, status: string, commits: Array<{author: string, message: string}>}>>([]);
 
+  const updateTime = () => {
+    setTime((prevTime) => {
+      const updatedTime = prevTime.map((timeZone) => {
+        const [hour, minute]: Array<string | number> = timeZone.time.split(":");
+        const updatedMinute = (parseInt(minute) + 1) % 60;
+        const updatedHour = updatedMinute === 0 ? (parseInt(hour) + 1) % 24 : parseInt(hour);
+
+        const newTime = `${updatedHour.toString().padStart(2, '0')}:${updatedMinute.toString().padStart(2, '0')}`;        
+        return { ...timeZone, time: newTime };
+      });
+
+      return updatedTime;
+    });
+  };
+
   useEffect(() => {
     const requestArray = [{ continent: 'Australia', city: 'Brisbane' }, { continent: 'Europe', city: 'Lisbon' }];
+
+    let minuteInterval: NodeJS.Timeout;
 
     const fetchTime = async (request: {continent: string, city: string}) => {
       try{
@@ -29,12 +46,22 @@ export default function HomePage() {
 
           return updatedTime;
         });
+
+        const timeoutSeconds = 60 - time.seconds;
+        setTimeout(() => {
+          updateTime();
+          minuteInterval = setInterval(() => {
+            updateTime();
+          }, 60000);
+        }, timeoutSeconds * 1000);
       } catch (error) {
         console.error('Error fetching data: ', error);
       };
     };
 
     requestArray.forEach(request => fetchTime(request));
+
+    return () => clearInterval(minuteInterval);
   }, []);
 
   const storeRepositories = (repository: string, deploymentStatus: Array<{state: string}>, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
