@@ -2,14 +2,16 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
+import Select from 'react-select';
+import timeZones from '../data/time-zones';
+import { IoAdd } from "react-icons/io5";
 import Clock from '../components/Clock';
 import Repository from '../components/Repository';
 
 export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
+  const [timeZone, setTimeZone] = useState<{value: string, label: string} | undefined>();
   const [repositories, setRepositories] = useState<Array<{repository: {name: string, url?: string}, deployment: {status: string, url?: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
-
-  const clockInputRef = useRef<HTMLInputElement | null>(null);
 
   const incrementTime = () => {
     setTime((prevTime) => {
@@ -62,10 +64,14 @@ export default function HomePage() {
     };
   };
 
+  const handleTimeZoneChange = (value: any) => {
+    setTimeZone(value);
+  };
+
   const clockInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value});
+      timeZone && addTimeZone({timeZone: timeZone.value});
     };
   };
 
@@ -158,9 +164,9 @@ export default function HomePage() {
         </div>
       </header>
       <section id="favouriteSection">
-        <div className="flex flex-row justify-center my-8">
-          <button onClick={() => clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value})} className="rounded-full w-16 h-16 text-4xl bg-zinc-300">+</button>
-          <input ref={clockInputRef} type="text" onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 rounded-full w-48 text-center bg-zinc-300" />
+        <div className="flex flex-row justify-center items-center my-8">
+          <button onClick={() => timeZone && addTimeZone({timeZone: timeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl"><IoAdd className="text-black/25" /></button>
+          <Select options={timeZones} onChange={handleTimeZoneChange} onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 w-80" />
         </div>
         <div className="flex flex-row rounded-2xl mx-auto mt-8 mb-16 w-fit bg-zinc-300">
           {time.map((timeData, index) => (
