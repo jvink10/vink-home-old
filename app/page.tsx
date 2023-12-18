@@ -7,7 +7,7 @@ import Repository from '../components/Repository';
 
 export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
-  const [repositories, setRepositories] = useState<Array<{repository: {name: string, url: string}, deployment: {status: string, url: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
+  const [repositories, setRepositories] = useState<Array<{repository: {name: string, url?: string}, deployment: {status: string, url?: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
 
   const clockInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -74,7 +74,7 @@ export default function HomePage() {
     requestArray.forEach((request) => addTimeZone(request));
   }, []);
 
-  const storeRepositories = (repository: {name: string, homepage: string}, deployment: Array<{state: string, environment_url: string}>, commitData: Array<{commit: {author: {name: string}, message: string}, html_url: string}>) => {
+  const storeRepositories = (repository: {name: string, homepage?: string}, deployment: Array<{state: string, environment_url?: string}>, commitData: Array<{commit: {author: {name: string}, message: string}, html_url: string}>) => {
     setRepositories((prevRepositories) => {
       const name = repository.name;
       const pageUrl = repository.homepage;
@@ -157,6 +157,7 @@ export default function HomePage() {
           <Link href="#docSection">Docs</Link>
         </div>
       </header>
+      <p>This shouldn't work due to ESLint</p>
       <section id="favouriteSection">
         <div className="flex flex-row justify-center my-8">
           <button onClick={() => clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value})} className="rounded-full w-16 h-16 text-4xl bg-zinc-300">+</button>
