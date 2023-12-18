@@ -8,7 +8,7 @@ export default function Repository(props: Props) {
 	const name = props.repository.repository.name.replaceAll("-", " ");
 
 	return (
-		<div className="first:rounded-l-2xl last:rounded-r-2xl w-64 overflow-hidden dark:text-white">
+		<div className="first:rounded-l-lg last:rounded-r-lg w-64 overflow-hidden dark:text-white">
 			<div className="border-b border-[#d0d7de] dark:border-[#30363d] px-8 py-4 bg-[#f6f8fa] dark:bg-[#0d1117]">
 				<a href={props.repository.repository.url} target="_blank" className={`font-bold truncate ${props.repository.repository.url ? 'hover:underline' : 'cursor-default'}`}>{name}</a>
 			</div>

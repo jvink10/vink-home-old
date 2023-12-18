@@ -154,8 +154,8 @@ export default function HomePage() {
   };
 
   return (
-    <main>
-      <header className="py-4 bg-zinc-700 text-white">
+    <main className="dark:bg-zinc-700">
+      <header className="border-b border-[#d0d7de] dark:border-black py-4 bg-zinc-200 dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-row justify-evenly mx-8">
           <Link href="#favouriteSection">Favourites</Link>
           <Link href="#emailSection">Emails</Link>
@@ -165,10 +165,10 @@ export default function HomePage() {
       </header>
       <section id="favouriteSection">
         <div className="flex flex-row justify-center items-center my-8">
-          <button onClick={() => timeZone && addTimeZone({timeZone: timeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl"><IoAdd className="text-black/25" /></button>
+          <button onClick={() => timeZone && addTimeZone({timeZone: timeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl bg-white"><IoAdd className="text-black/25" /></button>
           <Select options={timeZones} onChange={handleTimeZoneChange} onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 w-80" />
         </div>
-        <div className="flex flex-row rounded-2xl mx-auto mt-8 mb-16 w-fit bg-zinc-300">
+        <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {time.map((timeData, index) => (
             <Clock key={index} timeData={timeData} removeTimeZone={removeTimeZone} />
           ))}
@@ -178,7 +178,7 @@ export default function HomePage() {
         
       </section>
       <section id="gitSection">
-        <div className="flex flex-row mx-auto my-16 w-fit">
+        <div className="flex flex-row mx-auto my-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {repositories.map((repository, index) => (
             <Repository key={index} repository={repository} />
           ))}
