@@ -9,6 +9,8 @@ export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
   const [repositories, setRepositories] = useState<Array<{name: string, status: string, commits: Array<{author: string, message: string}>}>>([]);
 
+  const clockInputRef = useRef<HTMLInputElement | null>(null);
+
   const incrementTime = () => {
     setTime((prevTime) => {
       const updatedTime = prevTime.map((timeZone) => {
@@ -26,44 +28,43 @@ export default function HomePage() {
 
   const minuteIntervalMounted = useRef(true);
 
+  const addTimeZone = async (request: {timeZone: string}) => {
+    try{
+      const queryParams = new URLSearchParams(request);
+      const response = await fetch(`api/get-time?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const { time } = await response.json();
+      setTime((prevTime) => {
+        const updatedTime = [...prevTime];
+        updatedTime.push(time);
+
+        return updatedTime;
+      });
+      
+      if (minuteIntervalMounted.current) {
+        const timeoutSeconds = 60 - time.seconds;
+        setTimeout(() => {
+          incrementTime();
+          const minuteInterval = setInterval(() => {
+            incrementTime();
+          }, 60000);
+          return () => clearInterval(minuteInterval);
+        }, timeoutSeconds * 1000);
+        minuteIntervalMounted.current = false;
+      };
+    } catch (error) {
+      console.error('Error fetching time: ', error);
+    };
+  };
+
   useEffect(() => {
     const requestArray = [{timeZone: "Australia/Brisbane"}, {timeZone: "Europe/Lisbon"}];
-
-    const fetchTime = async (request: {timeZone: string}) => {
-      try{
-        const queryParams = new URLSearchParams(request);
-        const response = await fetch(`api/get-time?${queryParams}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const { time } = await response.json();
-        setTime((prevTime) => {
-          const updatedTime = [...prevTime];
-          updatedTime.push(time);
-
-          return updatedTime;
-        });
-
-        if (minuteIntervalMounted.current) {
-          const timeoutSeconds = 60 - time.seconds;
-          setTimeout(() => {
-            incrementTime();
-            const minuteInterval = setInterval(() => {
-              incrementTime();
-            }, 60000);
-            return () => clearInterval(minuteInterval);
-          }, timeoutSeconds * 1000);
-          minuteIntervalMounted.current = false;
-        };
-      } catch (error) {
-        console.error('Error fetching time: ', error);
-      };
-    };
-
-    requestArray.forEach((request) => fetchTime(request));
+    requestArray.forEach((request) => addTimeZone(request));
   }, []);
 
   const storeRepositories = (repository: string, deploymentStatus: Array<{state: string}>, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
@@ -136,7 +137,11 @@ export default function HomePage() {
         </div>
       </header>
       <section id="favouriteSection">
-        <div className="flex flex-row mx-auto my-16 rounded-2xl w-fit bg-zinc-300">
+        <div className="flex flex-row justify-center my-8">
+          <button onClick={() => clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value})} className="rounded-full w-16 h-16 text-4xl bg-zinc-300">+</button>
+          <input ref={clockInputRef} type="text" placeholder="Continent/City" className="ml-2 rounded-full w-48 text-center bg-zinc-300" />
+        </div>
+        <div className="flex flex-row rounded-2xl mx-auto mt-8 mb-16 w-fit bg-zinc-300">
           {time.map((timeData, index) => (
             <Clock key={index} timeData={timeData} removeTimeZone={removeTimeZone} />
           ))}
