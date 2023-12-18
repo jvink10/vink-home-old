@@ -62,6 +62,13 @@ export default function HomePage() {
     };
   };
 
+  const clockInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value});
+    };
+  };
+
   useEffect(() => {
     const requestArray = [{timeZone: "Australia/Brisbane"}, {timeZone: "Europe/Lisbon"}];
     requestArray.forEach((request) => addTimeZone(request));
@@ -139,7 +146,7 @@ export default function HomePage() {
       <section id="favouriteSection">
         <div className="flex flex-row justify-center my-8">
           <button onClick={() => clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value})} className="rounded-full w-16 h-16 text-4xl bg-zinc-300">+</button>
-          <input ref={clockInputRef} type="text" placeholder="Continent/City" className="ml-2 rounded-full w-48 text-center bg-zinc-300" />
+          <input ref={clockInputRef} type="text" onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 rounded-full w-48 text-center bg-zinc-300" />
         </div>
         <div className="flex flex-row rounded-2xl mx-auto mt-8 mb-16 w-fit bg-zinc-300">
           {time.map((timeData, index) => (
