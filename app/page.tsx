@@ -9,14 +9,14 @@ export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
   const [repositories, setRepositories] = useState<Array<{name: string, status: string, commits: Array<{author: string, message: string}>}>>([]);
 
-  const updateTime = () => {
+  const incrementTime = () => {
     setTime((prevTime) => {
       const updatedTime = prevTime.map((timeZone) => {
         const [hour, minute]: Array<string | number> = timeZone.time.split(":");
         const updatedMinute = (parseInt(minute) + 1) % 60;
         const updatedHour = updatedMinute === 0 ? (parseInt(hour) + 1) % 24 : parseInt(hour);
 
-        const newTime = `${updatedHour.toString().padStart(2, '0')}:${updatedMinute.toString().padStart(2, '0')}`;        
+        const newTime = `${updatedHour.toString().padStart(2, '0')}:${updatedMinute.toString().padStart(2, '0')}`;
         return { ...timeZone, time: newTime };
       });
 
@@ -27,12 +27,12 @@ export default function HomePage() {
   const minuteIntervalMounted = useRef(true);
 
   useEffect(() => {
-    const requestArray = [{ continent: 'Australia', city: 'Brisbane' }, { continent: 'Europe', city: 'Lisbon' }];
+    const requestArray = [{timeZone: "Australia/Brisbane"}, {timeZone: "Europe/Lisbon"}];
 
-    const fetchTime = async (request: {continent: string, city: string}) => {
+    const fetchTime = async (request: {timeZone: string}) => {
       try{
         const queryParams = new URLSearchParams(request);
-        const response = await fetch(`api/gettime?${queryParams}`, {
+        const response = await fetch(`api/get-time?${queryParams}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -50,16 +50,16 @@ export default function HomePage() {
         if (minuteIntervalMounted.current) {
           const timeoutSeconds = 60 - time.seconds;
           setTimeout(() => {
-            updateTime();
+            incrementTime();
             const minuteInterval = setInterval(() => {
-              updateTime();
+              incrementTime();
             }, 60000);
             return () => clearInterval(minuteInterval);
           }, timeoutSeconds * 1000);
           minuteIntervalMounted.current = false;
         };
       } catch (error) {
-        console.error('Error fetching data: ', error);
+        console.error('Error fetching time: ', error);
       };
     };
 
