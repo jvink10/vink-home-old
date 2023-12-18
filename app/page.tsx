@@ -172,7 +172,7 @@ export default function HomePage() {
         
       </section>
       <section id="gitSection">
-        <div className="flex flex-row mx-auto my-16 rounded-2xl w-fit bg-zinc-300">
+        <div className="flex flex-row mx-auto my-16 w-fit">
           {repositories.map((repository, index) => (
             <Repository key={index} repository={repository} />
           ))}
