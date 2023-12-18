@@ -1,14 +1,16 @@
+import Link from 'next/link';
+
 type Props = {
-	repository: {name: string, status: string, commits: Array<{author: string, message: string}>};
+	repository: {repository: {name: string, url?: string}, deployment: {status: string, url?: string}, commits: Array<{author: string, message: string, url: string}>};
 };
 
 export default function Repository(props: Props) {
 	return (
 		<div className="p-8 w-64">
-			<h2 className="text-lg font-bold">{props.repository.name}</h2>
-			<p>{props.repository.status}</p>
+			<a href={props.repository.repository.url} target="_blank" className="text-lg font-bold">{props.repository.repository.name}</a>
+			<a href={props.repository.deployment.url} target="_blank" className="block">{props.repository.deployment.status}</a>
 			{props.repository.commits.map((commit, index) => (
-        <p key={index} className="text-sm">{commit.author}: {commit.message}</p>
+        <Link key={index} href={commit.url} target="_blank" className="block text-sm">{commit.author}: {commit.message}</Link>
       ))}
 		</div>
 	);

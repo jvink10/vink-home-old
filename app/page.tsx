@@ -7,7 +7,7 @@ import Repository from '../components/Repository';
 
 export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
-  const [repositories, setRepositories] = useState<Array<{name: string, status: string, commits: Array<{author: string, message: string}>}>>([]);
+  const [repositories, setRepositories] = useState<Array<{repository: {name: string, url: string}, deployment: {status: string, url: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
 
   const clockInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -74,19 +74,24 @@ export default function HomePage() {
     requestArray.forEach((request) => addTimeZone(request));
   }, []);
 
-  const storeRepositories = (repository: string, deploymentStatus: Array<{state: string}>, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
+  const storeRepositories = (repository: {name: string, homepage: string}, deployment: Array<{state: string, environment_url: string}>, commitData: Array<{commit: {author: {name: string}, message: string}, html_url: string}>) => {
     setRepositories((prevRepositories) => {
-      const status = deploymentStatus[0].state;
+      const name = repository.name;
+      const pageUrl = repository.homepage;
 
-      const newCommits: Array<{author: string, message: string}> = [];
+      const status = deployment[0].state;
+      const deploymentUrl = deployment[0].environment_url;
+
+      const newCommits: Array<{author: string, message: string, url: string}> = [];
       commitData.forEach((commit) => {
         const author = commit.commit.author.name;
         const message = commit.commit.message;
-        newCommits.push({author: author, message: message});
+        const commitUrl = commit.html_url;
+        newCommits.push({author: author, message: message, url: commitUrl});
       });
 
       const updatedRepositories = [...prevRepositories];
-      updatedRepositories.push({name: repository, status: status, commits: newCommits});
+      updatedRepositories.push({repository: {name: name, url: pageUrl}, deployment: {status: status, url: deploymentUrl}, commits: newCommits});
 
       return updatedRepositories;
     });
@@ -98,6 +103,7 @@ export default function HomePage() {
     const fetchRepository = async (request: {owner: string, repo: string}) => {
       try {
         const queryParams = new URLSearchParams(request);
+
         const commitResponse = await fetch(`api/github/list-commits?${queryParams}`, {
           method: 'GET',
           headers: {
@@ -106,17 +112,25 @@ export default function HomePage() {
         });
         const commits = await commitResponse.json();
 
-        if (commits) {
-          const queryParams = new URLSearchParams(request);
-          const deploymentResponse = await fetch(`api/github/deployment-status?${queryParams}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-          const deploymentStatus = await deploymentResponse.json();
+        
+        const deploymentResponse = await fetch(`api/github/deployment-status?${queryParams}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const deployment = await deploymentResponse.json();
 
-          storeRepositories(request.repo, deploymentStatus, commits);
+        const repositoryResponse = await fetch(`api/github/home-page?${queryParams}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const repository = await repositoryResponse.json();
+
+        if (commits && deployment && repository) {
+          storeRepositories(repository, deployment, commits);
         };
       } catch (error) {
         console.error('Error fetching data: ', error);
