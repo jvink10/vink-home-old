@@ -157,7 +157,6 @@ export default function HomePage() {
           <Link href="#docSection">Docs</Link>
         </div>
       </header>
-      <p>This shouldn't work due to ESLint</p>
       <section id="favouriteSection">
         <div className="flex flex-row justify-center my-8">
           <button onClick={() => clockInputRef.current && addTimeZone({timeZone: clockInputRef.current.value})} className="rounded-full w-16 h-16 text-4xl bg-zinc-300">+</button>
