@@ -40,7 +40,7 @@ export default function HomePage() {
         });
 
         const { time } = await response.json();
-        setTime(prevTime => {
+        setTime((prevTime) => {
           const updatedTime = [...prevTime];
           updatedTime.push(time);
 
@@ -63,7 +63,7 @@ export default function HomePage() {
       };
     };
 
-    requestArray.forEach(request => fetchTime(request));
+    requestArray.forEach((request) => fetchTime(request));
   }, []);
 
   const storeRepositories = (repository: string, deploymentStatus: Array<{state: string}>, commitData: Array<{commit: {author: {name: string}, message: string}}>) => {
@@ -118,6 +118,13 @@ export default function HomePage() {
     repositoryArray.forEach(repository => fetchRepository(repository));
   }, []);
 
+  const removeTimeZone = (timeZone: string) => {
+    setTime((prevTime) => {
+      const updatedTime = prevTime.filter((timeData) => timeData.timeZone !== timeZone);
+      return updatedTime;
+    });
+  };
+
   return (
     <main>
       <header className="py-4 bg-zinc-700 text-white">
@@ -131,7 +138,7 @@ export default function HomePage() {
       <section id="favouriteSection">
         <div className="flex flex-row mx-auto my-16 rounded-2xl w-fit bg-zinc-300">
           {time.map((timeData, index) => (
-            <Clock key={index} timeData={timeData} />
+            <Clock key={index} timeData={timeData} removeTimeZone={removeTimeZone} />
           ))}
         </div>
       </section>
