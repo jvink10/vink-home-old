@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 		headers: {
 			'X-GitHub-Api-Version': '2022-11-28'
 		},
-		per_page: 3,
+		per_page: 5,
 	});
 	
 	const commits = response.data;
