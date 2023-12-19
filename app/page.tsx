@@ -9,7 +9,7 @@ import Clock from '../components/Clock';
 import Repository from '../components/Repository';
 
 export default function HomePage() {
-  const [time, setTime] = useState<Array<{timeZone: string, time: string, date: string, dayOfWeek: string}>>([]);
+  const [time, setTime] = useState<Array<{timeZone: string, time: string}>>([]);
   const [timeZone, setTimeZone] = useState<{value: string, label: string} | undefined>();
   const [repositories, setRepositories] = useState<Array<{repository: {name: string, url?: string}, deployment: {status: string, url?: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
 
@@ -104,7 +104,7 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    const repositoryArray = [{owner: 'jvink10', repo: 'room-view'}, {owner: 'jvink10', repo: 'your-local-wedding-guide'}, {owner: 'jvink10', repo: 'vink-home'}];
+    const repositoryArray = [{owner: 'jvink10', repo: 'your-local-wedding-guide'}, {owner: 'jvink10', repo: 'vink-home'}];
 
     const fetchRepository = async (request: {owner: string, repo: string}) => {
       try {

@@ -1,5 +1,5 @@
 type Props = {
-  timeData: {timeZone: string, time: string, date: string, dayOfWeek: string};
+  timeData: {timeZone: string, time: string};
   removeTimeZone: Function;
 };
 
