@@ -10,7 +10,7 @@ import Repository from '../components/Repository';
 
 export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string}>>([]);
-  const [timeZone, setTimeZone] = useState<{value: string, label: string} | undefined>();
+  const [selectTimeZone, setSelectTimeZone] = useState<{value: string, label: string} | undefined>();
   const [repositories, setRepositories] = useState<Array<{repository: {name: string, url?: string}, deployment: {status: string, url?: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
 
   const incrementTime = () => {
@@ -65,13 +65,13 @@ export default function HomePage() {
   };
 
   const handleTimeZoneChange = (value: any) => {
-    setTimeZone(value);
+    setSelectTimeZone(value);
   };
 
   const clockInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      timeZone && addTimeZone({timeZone: timeZone.value});
+      selectTimeZone && addTimeZone({timeZone: selectTimeZone.value});
     };
   };
 
@@ -165,7 +165,7 @@ export default function HomePage() {
       </header>
       <section id="favouriteSection">
         <div className="flex flex-row justify-center items-center my-8">
-          <button onClick={() => timeZone && addTimeZone({timeZone: timeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl bg-white"><IoAdd className="text-black/25" /></button>
+          <button onClick={() => selectTimeZone && addTimeZone({timeZone: selectTimeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl bg-white"><IoAdd className="text-black/25" /></button>
           <Select options={timeZones} onChange={handleTimeZoneChange} onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 w-80" />
         </div>
         <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
