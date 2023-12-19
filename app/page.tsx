@@ -214,7 +214,7 @@ export default function HomePage() {
           <button onClick={() => selectTimeZone && addTimeZone({timeZone: selectTimeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl bg-white"><IoAdd className="text-black/25" /></button>
           <Select options={timeZones} onChange={handleTimeZoneChange} onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 w-80" />
         </div>
-        <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
+        <div className="flex flex-row mx-auto my-8 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {time.map((timeData, index) => (
             <Clock key={index} timeData={timeData} removeTimeZone={removeTimeZone} />
           ))}
@@ -229,7 +229,7 @@ export default function HomePage() {
             <input ref={repositoryOwnerInputRef} onKeyDown={repositoryOwnerInputKeyDown} type="text" placeholder="Repository Owner" className="ml-2 border border-black/25 rounded-md p-2 w-60 h-[38px]" />
             <input ref={repositoryNameInputRef} onKeyDown={repositoryNameInputKeyDown} type="text" placeholder="Repository Name" className="ml-2 border border-black/25 rounded-md p-2 w-60 h-[38px]" />
         </div>
-        <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
+        <div className="flex flex-row mx-auto my-8 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {repositories.map((repository, index) => (
             <Repository key={index} repository={repository} refreshRepository={refreshRepository} removeRepository={removeRepository} />
           ))}
