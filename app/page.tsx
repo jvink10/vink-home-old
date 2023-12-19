@@ -203,13 +203,11 @@ export default function HomePage() {
     <main className="dark:bg-zinc-700">
       <header className="border-b border-[#d0d7de] dark:border-black py-4 bg-zinc-200 dark:bg-zinc-900 dark:text-white">
         <div className="flex flex-row justify-evenly mx-8">
-          <Link href="#favouriteSection">Favourites</Link>
-          <Link href="#emailSection">Emails</Link>
+          <Link href="#clockSection">Clocks</Link>
           <Link href="#gitSection">Github</Link>
-          <Link href="#docSection">Docs</Link>
         </div>
       </header>
-      <section id="favouriteSection">
+      <section id="clockSection">
         <div className="flex flex-row justify-center items-center my-8">
           <button onClick={() => selectTimeZone && addTimeZone({timeZone: selectTimeZone.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl bg-white"><IoAdd className="text-black/25" /></button>
           <Select options={timeZones} onChange={handleTimeZoneChange} onKeyDown={clockInputKeyDown} placeholder="Continent/City" className="ml-2 w-80" />
@@ -219,9 +217,6 @@ export default function HomePage() {
             <Clock key={index} timeData={timeData} removeTimeZone={removeTimeZone} />
           ))}
         </div>
-      </section>
-      <section id="emailSection">
-        
       </section>
       <section id="gitSection">
         <div className="flex flex-row justify-center items-center my-8">
@@ -235,9 +230,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-      <section id="docSection">
+      <footer className="py-4 bg-zinc-200 dark:bg-zinc-800 dark:text-white">
 
-      </section>
+      </footer>
     </main>
   );
 };
