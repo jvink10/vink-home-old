@@ -11,7 +11,7 @@ import Repository from '../components/Repository';
 export default function HomePage() {
   const [time, setTime] = useState<Array<{timeZone: string, time: string}>>([]);
   const [selectTimeZone, setSelectTimeZone] = useState<{value: string, label: string} | undefined>();
-  const [repositories, setRepositories] = useState<Array<{repository: {name: string, url?: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
+  const [repositories, setRepositories] = useState<Array<{repository: {owner: string, name: string, url?: string}, commits: Array<{author: string, message: string, url: string}>}>>([]);
 
   const incrementTime = () => {
     setTime((prevTime) => {
@@ -117,7 +117,7 @@ export default function HomePage() {
           });
     
           const updatedRepositories = [...prevRepositories];
-          updatedRepositories.push({repository: {name: name, url: pageUrl}, commits: newCommits});
+          updatedRepositories.push({repository: {owner: request.owner, name: name, url: pageUrl}, commits: newCommits});
     
           return updatedRepositories;
         });
@@ -154,6 +154,42 @@ export default function HomePage() {
       const updatedTime = prevTime.filter((timeData) => timeData.timeZone !== timeZone);
       return updatedTime;
     });
+  };
+
+  const refreshRepository = async (owner: string, repo: string) => {
+    try {
+      const queryParams = new URLSearchParams({owner: owner, repo: repo});
+
+      const commitResponse = await fetch(`api/github/list-commits?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const commits = await commitResponse.json();
+
+      if (commits) {
+        setRepositories((prevRepositories) => {
+          const newCommits: Array<{author: string, message: string, url: string}> = [];
+          commits.forEach((commit: {commit: {author: {name: string}, message: string}, html_url: string}) => {
+            const author = commit.commit.author.name;
+            const message = commit.commit.message;
+            const commitUrl = commit.html_url;
+            newCommits.push({author: author, message: message, url: commitUrl});
+          });
+    
+          const updatedRepositories = [...prevRepositories];
+          const repositoryIndex = updatedRepositories.findIndex((repository) => repository.repository.name === repo);
+          const updatedRepository = {...updatedRepositories[repositoryIndex]};
+          updatedRepository.commits = newCommits;
+          updatedRepositories[repositoryIndex] = updatedRepository;
+    
+          return updatedRepositories;
+        });
+      };
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    };
   };
 
   const removeRepository = (repositoryName: string) => {
@@ -195,7 +231,7 @@ export default function HomePage() {
         </div>
         <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {repositories.map((repository, index) => (
-            <Repository key={index} repository={repository} removeRepository={removeRepository} />
+            <Repository key={index} repository={repository} refreshRepository={refreshRepository} removeRepository={removeRepository} />
           ))}
         </div>
       </section>
