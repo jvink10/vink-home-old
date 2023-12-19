@@ -167,6 +167,13 @@ export default function HomePage() {
     });
   };
 
+  const removeRepository = (repositoryName: string) => {
+    setRepositories((prevRepositories) => {
+      const updatedRepositories = prevRepositories.filter((repository) => repository.repository.name !== repositoryName);
+      return updatedRepositories;
+    });
+  };
+
   return (
     <main className="dark:bg-zinc-700">
       <header className="border-b border-[#d0d7de] dark:border-black py-4 bg-zinc-200 dark:bg-zinc-900 dark:text-white">
@@ -199,7 +206,7 @@ export default function HomePage() {
         </div>
         <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {repositories.map((repository, index) => (
-            <Repository key={index} repository={repository} />
+            <Repository key={index} repository={repository} removeRepository={removeRepository} />
           ))}
         </div>
       </section>
