@@ -80,70 +80,84 @@ export default function HomePage() {
     requestArray.forEach((request) => addTimeZone(request));
   }, []);
 
-  const storeRepositories = (repository: {name: string, homepage?: string}, deployment: Array<{state: string, environment_url?: string}>, commitData: Array<{commit: {author: {name: string}, message: string}, html_url: string}>) => {
-    setRepositories((prevRepositories) => {
-      const name = repository.name;
-      const pageUrl = repository.homepage;
+  const repositoryOwnerInputRef = useRef<HTMLInputElement | null>(null);
+  const repositoryNameInputRef = useRef<HTMLInputElement | null>(null);
 
-      const status = deployment[0].state;
-      const deploymentUrl = deployment[0].environment_url;
+  const addRepository = async (request: {owner: string, repo: string}) => {
+    try {
+      const queryParams = new URLSearchParams(request);
 
-      const newCommits: Array<{author: string, message: string, url: string}> = [];
-      commitData.forEach((commit) => {
-        const author = commit.commit.author.name;
-        const message = commit.commit.message;
-        const commitUrl = commit.html_url;
-        newCommits.push({author: author, message: message, url: commitUrl});
+      const commitResponse = await fetch(`api/github/list-commits?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+      const commits = await commitResponse.json();
+      
+      const deploymentResponse = await fetch(`api/github/deployment-status?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const deployment = await deploymentResponse.json();
 
-      const updatedRepositories = [...prevRepositories];
-      updatedRepositories.push({repository: {name: name, url: pageUrl}, deployment: {status: status, url: deploymentUrl}, commits: newCommits});
+      const repositoryResponse = await fetch(`api/github/home-page?${queryParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const repository = await repositoryResponse.json();
 
-      return updatedRepositories;
-    });
+      if (repository && deployment && commits) {
+        setRepositories((prevRepositories) => {
+          const name = repository.name;
+          const pageUrl = repository.homepage;
+    
+          const status = deployment[0].state;
+          const deploymentUrl = deployment[0].environment_url;
+    
+          const newCommits: Array<{author: string, message: string, url: string}> = [];
+          commits.forEach((commit: {commit: {author: {name: string}, message: string}, html_url: string}) => {
+            const author = commit.commit.author.name;
+            const message = commit.commit.message;
+            const commitUrl = commit.html_url;
+            newCommits.push({author: author, message: message, url: commitUrl});
+          });
+    
+          const updatedRepositories = [...prevRepositories];
+          updatedRepositories.push({repository: {name: name, url: pageUrl}, deployment: {status: status, url: deploymentUrl}, commits: newCommits});
+    
+          return updatedRepositories;
+        });
+      };
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    };
+  };
+
+  const repositoryOwnerInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      repositoryOwnerInputRef.current && repositoryNameInputRef.current && addRepository({owner: repositoryOwnerInputRef.current.value, repo: repositoryNameInputRef.current.value});
+    };
+  };
+
+  const repositoryNameInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      repositoryOwnerInputRef.current && repositoryNameInputRef.current && addRepository({owner: repositoryOwnerInputRef.current.value, repo: repositoryNameInputRef.current.value});
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      repositoryOwnerInputRef.current && repositoryOwnerInputRef.current.focus();
+    };
   };
 
   useEffect(() => {
     const repositoryArray = [{owner: 'jvink10', repo: 'your-local-wedding-guide'}, {owner: 'jvink10', repo: 'vink-home'}];
-
-    const fetchRepository = async (request: {owner: string, repo: string}) => {
-      try {
-        const queryParams = new URLSearchParams(request);
-
-        const commitResponse = await fetch(`api/github/list-commits?${queryParams}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const commits = await commitResponse.json();
-
-        
-        const deploymentResponse = await fetch(`api/github/deployment-status?${queryParams}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const deployment = await deploymentResponse.json();
-
-        const repositoryResponse = await fetch(`api/github/home-page?${queryParams}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const repository = await repositoryResponse.json();
-
-        if (commits && deployment && repository) {
-          storeRepositories(repository, deployment, commits);
-        };
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      };
-    };
-
-    repositoryArray.forEach(repository => fetchRepository(repository));
+    repositoryArray.forEach((repository) => addRepository(repository));
   }, []);
 
   const removeTimeZone = (timeZone: string) => {
@@ -178,7 +192,12 @@ export default function HomePage() {
         
       </section>
       <section id="gitSection">
-        <div className="flex flex-row mx-auto my-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
+        <div className="flex flex-row justify-center items-center my-8">
+            <button onClick={() => repositoryOwnerInputRef.current && repositoryNameInputRef.current && addRepository({owner: repositoryOwnerInputRef.current.value, repo: repositoryNameInputRef.current.value})} className="border border-black/25 rounded-md w-[38px] h-[38px] text-4xl bg-white"><IoAdd className="text-black/25" /></button>
+            <input ref={repositoryOwnerInputRef} onKeyDown={repositoryOwnerInputKeyDown} type="text" placeholder="Repository Owner" className="ml-2 border border-black/25 rounded-md p-2 w-60 h-[38px]" />
+            <input ref={repositoryNameInputRef} onKeyDown={repositoryNameInputKeyDown} type="text" placeholder="Repository Name" className="ml-2 border border-black/25 rounded-md p-2 w-60 h-[38px]" />
+        </div>
+        <div className="flex flex-row mx-auto mt-8 mb-16 border border-[#d0d7de] dark:border-black rounded-lg w-fit">
           {repositories.map((repository, index) => (
             <Repository key={index} repository={repository} />
           ))}
