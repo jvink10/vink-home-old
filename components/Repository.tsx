@@ -9,10 +9,10 @@ export default function Repository(props: Props) {
 
 	return (
 		<div className="first:rounded-l-lg last:rounded-r-lg w-64 overflow-hidden dark:text-white">
-			<div className="border-b border-[#d0d7de] dark:border-[#30363d] px-8 py-4 bg-[#f6f8fa] dark:bg-[#0d1117]">
+			<div className="border-b border-[#d0d7de] dark:border-[#30363d] px-8 py-4 bg-zinc-200 dark:bg-zinc-900">
 				<a href={props.repository.repository.url} target="_blank" className={`font-bold truncate ${props.repository.repository.url ? 'hover:underline' : 'cursor-default'}`}>{name}</a>
 			</div>
-			<div className="px-8 py-4 divide-y divide-[#d0d7de] dark:divide-[#30363d] dark:bg-[#161b22]">
+			<div className="px-8 py-4 divide-y divide-[#d0d7de] dark:divide-[#30363d] bg-zinc-100 dark:bg-zinc-800">
 				<a href={props.repository.deployment.url} target="_blank" className={`block pb-2 truncate ${props.repository.deployment.url ? 'hover:underline' : 'cursor-default'}`}>{props.repository.deployment.status}</a>
 				{props.repository.commits.map((commit, index) => (
       	  <Link key={index} href={commit.url} target="_blank" className="block py-5 text-sm truncate hover:underline">{commit.author}: {commit.message}</Link>
